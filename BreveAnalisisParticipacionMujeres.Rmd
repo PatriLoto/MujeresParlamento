@@ -1,0 +1,100 @@
+---
+title: "Análisis sobre la Participación de las mujeres en diferentes parlamentos del mundo"
+author: "Patricia A. Loto"
+date: "9 de mayo de 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Breve descripción de los datos
+
+
+### `datos_uip`
+
+|Variable       |Clase               |Descripción |
+|:--------------|:-------------------|:-----------|
+|pais           |caracter              | Países incluidos en el dataset |
+|camara      |caracter            | Si los datos corresponden a la cámara `alta`, `baja` o a la cámara `única`.  |
+|porcentaje_mujeres        |numérica            | Porcentaje de mujeres en esa cámara (`NA` para el resto de las cámaras)|
+|cuota_genero | caracter | Si existe o no cuota de género en esa cámara. (`NA` si no existe información) |
+|edad_elegibilidad | numérica | Edad mínima requerida para postular a esa cámara (`NA` si no existe información)
+| integrante_mas_joven | numérica | Integrante más joven en este momento (`NA` si no existe información)
+| numero_integrantes | numérica | Número de integrantes en este momento (`NA` si no existe información)
+| iso_pais | caracter | código ISO del país
+
+
+## Vistazo de los datos 
+
+```{r datosParlamento}
+# install.packages(readr)
+library(tidyverse)
+datosParlamento <- readr::read_csv("https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-05-08/datos_uip.csv")
+View(datosParlamento)
+#write.csv(datos_uip,"datosParlamento.csv")
+dim(datosParlamento)
+head(datosParlamento)
+tail(datosParlamento)
+
+
+```
+
+```{r}
+datosParlamento <- clean_names(datosParlamento)
+names(datosParlamento)[6] = "masJoven"
+names(datosParlamento)[7] = "nroIntegrantes"
+names(datosParlamento)[8] = "codPais"
+
+na.omit()
+Argentina <-datosParlamento%>% filter(cod_pais=="arg")
+View(Argentina)
+mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=sum(na.omit(porcentaje_mujeres)), totalMujeres=sum((na.omit(porcentaje_mujeres)*10)),totalIntegrantes=(sum(na.omit(nroIntegrantes))))
+                                                                                                                                                #otalHombres = ((sum(na.omit(nroIntegrantes))-totalMujeres)/(sum(na.omit(nroIntegrantes)))), totalporcenH=(totalHombres * 0.10))
+                                                                
+                                                
+View(mundo)
+
+```
+
+
+
+## Presencia parlamentaria de mujeres en Parlamentos a nivel Mundial
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+
+## Presencia parlamentaria de mujeres en Parlamentos a nivel Regional
+
+You can also embed plots, for example:
+
+```{r }
+plot(pressure)
+```
+## Consideraciones sobre la Fuente de datos utilizada
+
+Este _dataset_ recoge algunos de los datos que se encuentran disponibles en la [plataforma de datos abiertos de la Unión Interparlamentaria](data.ipu.org). La selección y traducción al español estuvo a cargo de [Riva Quiroga](https://twitter.com/rivaquiroga).
+
+## Fuentes
+
++ [#DatosDeMiercoles] (https://github.com/cienciadedatos/datos-de-miercoles)
+
+## Notas interesantes sobre Igualdad de Género en la política
+
++ Aplicación shiny sobre mujeres en el parlamento (2000 - 2018) desarrollada por [Gabriela Matthieu](https://twitter.com/calcita13). [Aplicación Shiny](https://calcita.shinyapps.io/women_in_politics)
+
+* [Slides presentación LatinR](https://gitlab.com/calcita/Presenta_mep/blob/master/Presenta_mep.pdf)
+
++ <https://laciudaddelasdiosas.wordpress.com/2008/03/06/el-parlamento-europeo-y-la-igualdad-de-genero/>
+
++ <http://www.oecd.org/gender/data/female-share-of-seats-in-national-parliaments.html>
+
++ <https://www.elmundo.es/espana/verano/2017/07/30/5978c253e5fdeaf8078b45bb.html>
+
++ <https://www.nexos.com.mx/?p=40895>
+
