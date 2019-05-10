@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 ## Breve descripción de los datos
@@ -25,36 +26,43 @@ knitr::opts_chunk$set(echo = TRUE)
 | numero_integrantes | numérica | Número de integrantes en este momento (`NA` si no existe información)
 | iso_pais | caracter | código ISO del país
 
-
-## Vistazo de los datos 
-
-```{r datosParlamento}
+```{r, echo=FALSE, include=FALSE}
 # install.packages(readr)
 library(tidyverse)
+library(easypackages)
+
+libraries("tidyverse","here","janitor","lubridate","gganimate","gifski","png","LaCroixColoR", "extrafont", "plotly")  #  ó todo el resto
+
 datosParlamento <- readr::read_csv("https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-05-08/datos_uip.csv")
-View(datosParlamento)
+#View(datosParlamento)
+```
+## Vistazo de los datos 
+
+```{r}
 #write.csv(datos_uip,"datosParlamento.csv")
 dim(datosParlamento)
 head(datosParlamento)
 tail(datosParlamento)
-
-
 ```
 
-```{r}
+```{r datosParlamento, echo=FALSE}
 datosParlamento <- clean_names(datosParlamento)
 names(datosParlamento)[6] = "masJoven"
 names(datosParlamento)[7] = "nroIntegrantes"
 names(datosParlamento)[8] = "codPais"
 
-na.omit()
-Argentina <-datosParlamento%>% filter(cod_pais=="arg")
+Argentina <-datosParlamento%>% filter(codPais=="arg")
 View(Argentina)
-mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=sum(na.omit(porcentaje_mujeres)), totalMujeres=sum((na.omit(porcentaje_mujeres)*10)),totalIntegrantes=(sum(na.omit(nroIntegrantes))))
-                                                                                                                                                #otalHombres = ((sum(na.omit(nroIntegrantes))-totalMujeres)/(sum(na.omit(nroIntegrantes)))), totalporcenH=(totalHombres * 0.10))
-                                                                
-                                                
-View(mundo)
+porcenMujeres <-trunc(datosParlamento$porcentaje_mujeres,0)
+View(porcenMujeres)
+
+mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=(sum(porcentaje_mujeres,na.rm = TRUE)),totalMujeres=round((totalporcenM*10), 0), totalIntegrantes=(sum(nroIntegrantes, na.rm = TRUE)),totalporcenH=(100- totalporcenM))
+
+mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=(sum(porcentaje_mujeres,na.rm = TRUE)),totalMujeres=round((totalporcenM*10), 0), totalIntegrantes=(sum(nroIntegrantes, na.rm = TRUE)),totalporcenH=(100- totalporcenM))
+View(mundo)                                                                                                            
+
+
+
 
 ```
 
@@ -62,16 +70,45 @@ View(mundo)
 
 ## Presencia parlamentaria de mujeres en Parlamentos a nivel Mundial
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+```{r datosParlamento}
+#Paleta colores
+p<-lacroix_palette("PassionFruit", n = 580, type = "continuous")
+p1<-lacroix_palette("Pamplemousse",n=580, type = "continuous")
+p2<-lacroix_palette("PeachPear", n = 580, type = "continuous")
+p3<-lacroix_palette(type = "paired")
+mujeres <- ggplot(data =mundo, aes(x=(pais), y=totalporcenM, colour=pais, text = paste('<b> Porcentaje:</b>', totalporcenM, '%', '\n <b>País:</b>', pais))) + 
+  geom_bar(size=1.5, stat="identity", position=position_dodge()) +
+  scale_colour_manual(values =p) +  
+  #scale_fill_manual(values =c("turquoise", "maroon")) +
+  labs (x = "País", y = "Porcentaje (%)", 
+        title= ("Mujeres en el Parlamento"))+
+  #caption = " Fuente: #DatosdeMiercoles", legend=" ")+ # agrego título al gráfico
+  theme (axis.text.x =element_blank(),
+         #element_text(angle=90, vjust = 1, hjust=1.1, color="black", size=7),
+         plot.title = element_text(family="Comic Sans MS",
+                                   size=rel(1),                      #Tamaño relativo de la letra del título
+                                   vjust=1, 
+                                   hjust=0.5,                        #Para separarlo del gráfico
+                                   position_identity(center),   
+                                   face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
+                                   color="white", #Color del texto  color=maroon, lightblue
+                                   lineheight=1.0),legend.text= element_blank(),
+         legend.position = "none",
+         panel.border = element_blank(),
+         panel.background = element_blank(),
+         panel.grid = element_blank(),
+         rect = element_rect(fill = "black", color = "black"),
+         text = element_text(family = "Verdana", colour = "white", size = 12))
+
+ggplotly(mujeres, hoverformat='2.F', tooltip = "text")
 ```
 
 
 ## Presencia parlamentaria de mujeres en Parlamentos a nivel Regional
 
-You can also embed plots, for example:
+
 
 ```{r }
 plot(pressure)
