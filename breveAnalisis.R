@@ -10,7 +10,7 @@ library(plotly)
 library(gganimate)
 # se debe instalar la fuente en wintendo
 # font_import(paths = "R/2019/2019-04-17/")
-
+# Se realiza por única vez
 font_import()
 fonts()
 loadfonts(device = "win")
@@ -41,12 +41,15 @@ View(mundoConMujeres)
 camaraBaja<- datosParlamento%>% group_by(codPais, pais)%>% filter (camara =="baja" | camara =="única")%>%
   summarise(totalPorcenCBaja=(sum(porcentaje_mujeres,na.rm = TRUE)), totalIntegrantesCBaja=(sum(numero_integrantes, na.rm = TRUE)))%>%arrange(totalPorcenCBaja)
 View(camaraBaja)
+camaraBaja[camaraBaja$pais == "Panamá",3]<-"18.3"
+
 # selecciono sólo los que tienen representacion en cámara baja o única
 camaraBajaSi <-camaraBaja %>%filter(totalPorcenCBaja>0)
 View(camaraBajaSi)
 
-camaraBajaLatam <- filter(camaraBaja, pais %in% c("Argentina", "Bolivia" , "Brasil","Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Puerto Rico", "Perú", "República Dominicana", "Uruguay", "Venezuela"))
+camaraBajaLatam <- filter(camaraBajaSi, pais %in% c("Argentina", "Bolivia" , "Brasil","Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Puerto Rico", "Perú", "República Dominicana", "Uruguay", "Venezuela"))
 View(camaraBajaLatam)
+
 #países sin representacion en camara baja: Afghanistán, Benin, España,	Micronesia,Indonesia,India, Nigeria,Panamá, Papúa Nueva Guinea,Vanuatu
 paisesSinMujeresCBaja <- camaraBaja%>% filter (totalPorcenCBaja ==0)
 View(paisesSinMujeresCBaja)
@@ -70,7 +73,7 @@ pL<-lacroix_palette("PassionFruit", n = 19, type = "continuous")
 p<-lacroix_palette("PassionFruit", n = 580, type = "continuous")
 pM<-lacroix_palette("PassionFruit", n = 189, type = "continuous")
 p1<-lacroix_palette("Pamplemousse",n=580, type = "continuous")
-pL1<-lacroix_palette("Pamplemousse")
+pL1<-lacroix_palette("Pamplemousse",n = 19, type = "continuous")
 pM1<-lacroix_palette("Pamplemousse",n=189, type = "continuous")
 
 p2<-lacroix_palette("PeachPear", n = 580, type = "continuous")
@@ -130,40 +133,143 @@ xaxis <- list(title = "",
                #               size = 12,
                 #              color = 'rgb(82, 82, 82)'))
 
+
+#--------------------------------------------------------------------------------------------------------------------------------
+#PLOTLY - ok para publicar
+p<- plot_ly (x = camaraBajaLatam$pais, y = camaraBajaLatam$totalPorcenCBaja, color = camaraBajaLatam$pais, text = paste('<b>País:</b>', camaraBajaLatam$pais,'\n <b> Mujeres:</b>', camaraBajaLatam$totalPorcenCBaja, '%' ), 
+             hoverinfo = "text", type = "bar") %>% layout(title= 'Mujeres en el Parlamento', legend= '',
+                                                          xaxis = list(showline = F, 
+                                                                       showticklabels = F, 
+                                                                       fixedrange = T,
+                                                                       showlegend =TRUE,
+                                                                       title = "País"),
+                                                          yaxis = list(fixedrange = T, 
+                                                                       title = "Porcentaje"))
+ 
+p
+
+
+
+#------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------
 
-# con PLOTLY con porcentaje de mujeres en camara Baja o única
+# con GGANIMATE con porcentaje de mujeres en camara Baja o única latinoamerica fondo blanco PUBLICAR
+camaraBajaLatam[camaraBajaLatam$pais == "República Dominicana",2]<-"Rep.Dominicana"
+#camaraBajaLatam[camaraBajaLatam$pais == "Panamá",3]<-"18.3" ya lo agregué arriba
+View(camaraBajaLatam)
 
-mujeresCBajaLATAM <- ggplot(data =camaraBajaLatam, aes(x=(pais), y=totalPorcenCBaja, colour=pais, text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
-  geom_bar(size=2, stat="identity", position=position_dodge()) +
-  scale_colour_manual(values =pL) +  
-  scale_fill_manual(values =p) +
-  labs (x = "País", y = "Porcentaje", 
-        title= ("Participación femenina en Cámara baja o única"),
-        caption = " Fuente: #DatosdeMiercoles", legend=" ") + # agrego título al gráfico
-  theme (axis.text.x =element_blank(),
-         #element_text(angle=90, vjust = 1, hjust=1.1, color="black", size=7),
-         plot.title = element_text(#family="Comic Sans MS",
+mujeresCBajaLATAM <- ggplot(data =camaraBajaLatam, aes((pais), y=totalPorcenCBaja, fill=pais, text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
+  geom_bar(size=2, stat="identity", position=position_dodge()) +              #aes(reorder(pais, totalPorcenCBaja)
+  #scale_colour_manual(values =pL) +  
+  scale_fill_manual(values =pL) +
+  labs (x = "", y = "Porcentaje", 
+        title= ("Presencia femenina en el parlamento \n en Países de Latinoamérica" ),
+        subtitle= ("Cámara baja o única"),
+        caption = " Fuente: #DatosdeMiercoles por Patricia Loto", legend=" ") + # agrego título al gráfico
+  theme (axis.text.x =element_text(angle=90, vjust = 1, hjust=0.8, color="black", size=10),
+         plot.title = element_text(family="Palatino",
            # size=rel(1), 
            size = 14,
-           vjust=1, 
-           hjust=0.5,                        #Para separarlo del gráfico
+           vjust=1.4, 
+           hjust=0.5,                        
           # position_identity(center),   
            face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
-           color="white", #Color del texto  color=maroon, lightblue
+           color="black", #Color del texto  color=maroon, lightblue
            lineheight=1.0),legend.text= element_blank(),
+         plot.subtitle = element_text(hjust = 0.5),
+         plot.caption = element_text(color = "green", face = "bold", size = 9),
          legend.position = "none",
          panel.border = element_blank(),
          panel.background = element_blank(),
          panel.grid = element_blank(),
-         rect = element_rect(fill = "pink", color = "pink"),
-         text = element_text(family = "Palatino", colour = "white", size = 14))
+         rect = element_rect(fill = "white", color = "white"))+
+  ylim(0,60)
 mujeresCBajaLATAM
-#plotly
-ggplotly(mujeresCBajaLATAM, hoverformat='2.F', tooltip = "text")
+
+mujeresCBajaLATAM + transition_states(totalPorcenCBaja, wrap = FALSE) +
+  shadow_mark()+
+  enter_grow() +
+  enter_fade()
+
+#----------------------------------------
+#GGanimate para comparacion y publicacion 
+#---------------------------------------
+mujeresLATAMOrdenada <- ggplot(data =camaraBajaLatam, aes(((pais)), y=totalPorcenCBaja, fill=pais, text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
+  geom_bar(stat="identity", position=position_dodge()) +              #aes(reorder(pais, totalPorcenCBaja)
+  scale_colour_manual(values =pL) +  
+  scale_fill_manual(values =pL) +
+  labs (x = "", y = "Porcentaje", 
+        title= ("Mujeres en los parlamentos \n de Países de Latinoamérica" ),
+        subtitle= ("Cámara baja o única"),
+        caption = " Fuente: #DatosdeMiercoles por Patricia Loto", legend=" ") +
+  geom_text(aes(y = totalPorcenCBaja,label = totalPorcenCBaja),
+            position = position_stack(), size=2.5, vjust=2, hjust=0.5 ,col="white")+ # agrego título al gráfico
+  theme (axis.text.x =element_text(angle=90, vjust = 1, hjust=0.8, color="white", size=11),
+         axis.text.y= element_text(color="white", size=11),
+         plot.title = element_text(family="Palatino",
+                                   # size=rel(1), 
+                                   size = 14,
+                                   vjust=1.4, 
+                                   hjust=0.5,                        
+                                   # position_identity(center),   
+                                   face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
+                                   color="white", #Color del texto  color=maroon, lightblue
+                                   lineheight=1.0),legend.text= element_blank(),
+         plot.subtitle = element_text(hjust = 0.5, color="white"),
+         plot.caption = element_text(color = "green", face = "bold", size = 9),
+         legend.position = "none",
+         panel.border = element_blank(),
+         panel.background = element_blank(),
+         panel.grid = element_blank(),
+         rect = element_rect(fill = "black", color = "black"))+
+  ylim(0,60)
+mujeresLATAMOrdenada
+#plotly Puede publicarse es hermoso
+ggplotly(mujeresLATAMOrdenada, hoverformat='2.F', tooltip = "text")
 #ggploty(mujeres)
+mujeresLATAMOrdenada + transition_states(totalPorcenCBaja, wrap = FALSE) +
+  shadow_mark()+
+  enter_grow() +
+  enter_fade()
+#------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------------
 
+# con GGANIMATE con porcentaje de mujeres en camara Baja o única latinoamerica fondo blanco paleta:Pamplemousse/PeachPear
 
+mujeresCBajaLATAM2 <- ggplot(data =camaraBajaLatam, aes((pais), y=totalPorcenCBaja, fill=pais,label="TRUE", text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
+  geom_bar(size=2, stat="identity", position=position_dodge()) +             #aes(reorder(pais, totalPorcenCBaja),
+  #scale_colour_manual(values =pL2) +  
+  scale_fill_manual(values =pL2) +
+  labs (x = "", y = "Porcentaje", 
+        title= ("Presencia femenina en el parlamento \n en Países de Latinoamérica"),
+        subtitle= ("Cámara baja o única"),
+        caption = " Fuente: #DatosdeMiercoles", legend=" ") + # agrego título al gráfico
+  theme (axis.text.x =element_text(angle=90, vjust = 1, hjust=0.8, color="black", size=11),
+         plot.title = element_text(family="Georgia",
+                                   # size=rel(1), 
+                                   size = 14,
+                                   vjust=1.4, 
+                                   hjust=0.5,                        
+                                   # position_identity(center),   
+                                   face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
+                                   color="black", #Color del texto  color=maroon, lightblue
+                                   lineheight=1.0),legend.text= element_blank(),
+         plot.subtitle = element_text(hjust = 0.5),
+         plot.caption = element_text(color = "darkblue", face = "bold", size = 9),
+         legend.position = "none",
+         panel.border = element_blank(),
+         panel.background = element_blank(),
+         panel.grid = element_blank(),
+         rect = element_rect(fill = "beige", color = "beige"))+
+  ylim(0,60)#+
+#text = element_text(family = "Palatino", colour = "black", size = 14))+
+
+mujeresCBajaLATAM2
+#para publicar
+mujeresCBajaLATAM2 + transition_states(totalPorcenCBaja, wrap = FALSE) +
+  shadow_mark()+
+  enter_grow() +
+  enter_fade()
 #-----------------------------------------------------------------------------------------
 # camara baja LATAM
 Latam <- ggplot(camaraBajaLatam, aes(reorder(pais, totalPorcenCBaja), totalPorcenCBaja, size =(totalPorcenCBaja), text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
@@ -221,8 +327,8 @@ ggplotly(Latam, hoverformat='2.F', tooltip = "text")
   
   p <- ggplot(camaraBajaLatam, aes(pais, totalPorcenCBaja, fill = totalPorcenCBaja)) +
     geom_col() +
-   scale_fill_distiller( palette=  "maroon", direction = 1) +
-  # scale_fill_manual(values =pL)+
+   #scale_fill_distiller( direction = 1) +
+   scale_fill_manual(values =pL)+
     theme_minimal() +
     labs(title = "Participación femenina en Cámara baja o única  \n",
          subtitle = "Período:2017",
