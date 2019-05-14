@@ -3,6 +3,7 @@ library(tidyverse)
 library(viridis)
 library(hrbrthemes)
 library(mapdata)
+library(LaCroixColoR)
 
 # Load dataset from github
 data <- read.table("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/17_ListGPSCoordinates.csv", sep=",", header=T)
@@ -18,9 +19,11 @@ p <- data %>%
   group_by(homelat, homelon, homecontinent) %>%
   summarise(n=n()) %>%
   ggplot() +
-  geom_polygon(data = world, aes(x=long, y = lat, group = group), fill="grey", alpha=0.1) +
+  geom_polygon(data = world, aes(x=long, y = lat, group = group), fill="pink", alpha=0.1) +
   geom_point(aes(x=homelon, y=homelat, color=homecontinent, size=n), alpha=0.5) +
-  scale_color_viridis(discrete=TRUE, guide=FALSE) +
+  #scale_color_gradient(discrete=false, guide=FALSE)+
+  scale_color_discrete(lacroix_palette("PeachPear", type = "discrete")) +
+  #scale_color_viridis(discrete=false, guide=FALSE) +
   scale_size_continuous(range=c(0.2,68)) +
   coord_equal() +
   theme_void() +
@@ -30,8 +33,8 @@ p <- data %>%
     legend.position=c(0.15,0.07),
     legend.direction="horizontal"
   ) +
-  ggplot2::annotate("text", x = -165, y = -30, hjust = 0, size = 11, label = paste("Where surfers live."), color = "Black") +
-  ggplot2::annotate("text", x = -165, y = -36, hjust = 0, size = 8, label = paste("data-to-viz.com | 200,000 #surf tweets recovered"), color = "black", alpha = 0.5) +
+  ggplot2::annotate("text", x = -165, y = -30, hjust = 0, size = 11, label = paste(""), color = "Black") +
+  ggplot2::annotate("text", x = -165, y = -36, hjust = 0, size = 8, label = paste(""), color = "black", alpha = 0.5) +
   xlim(-180,180) +
   ylim(-60,80) +
   scale_x_continuous(expand = c(0.006, 0.006)) +
@@ -39,4 +42,4 @@ p <- data %>%
 p
 
 # Save at PNG
-ggsave("IMG/Surfer_bubble.png", width = 36, height = 15.22, units = "in", dpi = 90)
+ggsave("Surfer_bubble.png", width = 36, height = 15.22, units = "in", dpi = 90)
