@@ -7,7 +7,7 @@ libraries("tidyverse","here","janitor","lubridate","gganimate","gifski","png","L
 
 library(ggcorrplot)
 library(treemapify)
-)
+
 # se debe instalar la fuente en wintendo
 # font_import(paths = "R/2019/2019-04-17/")
 # Se realiza por única vez
@@ -26,12 +26,18 @@ head(datosParlamento)
 tail(datosParlamento)
 
 datosParlamento <- clean_names(datosParlamento)
-names(datosParlamento)[6] = "masJoven"
-names(datosParlamento)[7] = "nroIntegrantes"
+#names(datosParlamento)[6] = "masJoven"
+#names(datosParlamento)[7] = "nroIntegrantes"
 names(datosParlamento)[8] = "codPais"
 # valores mundiales sin año
-mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=(sum(porcentaje_mujeres,na.rm = TRUE)),totalMujeres=round((totalporcenM*10), 0), totalIntegrantes=(sum(numero_integrantes, na.rm = TRUE)),totalporcenH=(100- totalporcenM))%>%arrange(totalporcenM)
-View(mundo)
+mundoA<- datosParlamento%>% group_by(codPais, pais)%>% filter (camara =="alta")%>%summarise(totalporcenM=(sum(porcentaje_mujeres,na.rm = TRUE)),totalMujeres=round((totalporcenM*10), 0), totalIntegrantes=(sum(numero_integrantes, na.rm = TRUE)),totalporcenH=(100- totalporcenM))%>%arrange(desc(totalporcenM))
+View(mundoA)
+
+
+
+camaraAltaLatam <- filter(camaraAltaSi, pais %in% c("Argentina", "Bolivia" , "Brasil","Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Puerto Rico", "Perú", "República Dominicana", "Uruguay", "Venezuela"))
+View(camaraAltaLatam)
+
 
 mundoConMujeres <-mundo%>% filter(totalporcenM!=0)
 View(mundoConMujeres)
@@ -51,6 +57,13 @@ View(camaraAltaSi)
 camaraAltaLatam <- filter(camaraAltaSi, pais %in% c("Argentina", "Bolivia" , "Brasil","Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Puerto Rico", "Perú", "República Dominicana", "Uruguay", "Venezuela"))
 View(camaraAltaLatam)
 
+camaraAltaEuropa <- filter(camaraAltaSi, pais %in% c("Albania","Alemania","Andorra","Armenia","Austria","Azerbaiyán","Bélgica","Bielorrusia","Bosnia y Herzegovina", "Bulgaria","Chipre", "Croacia", "Dinamarca", "Eslovaquia", "España", "Estonia", "Finlandia",  "Francia",  "Georgia", "Grecia", "Hungría","Irlanda", "Islandia", 
+                                                     "Italia", "Kazajistán", "Letonia", "Liechtenstein", "Lituania", "Luxemburgo", "Macedonia","Malta", "Moldavia", "Mónaco","Montenegro", "Noruega", "Países Bajos", "Polonia", "Portugal", "Reino Unido", "República Checa", "Rumanía", "Rusia", "San Marino", "Serbia", "Suecia","Suiza", "Turquía", "Ucrania"))
+
+
+
+View(camaraAltaEuropa)
+
 
 #países sin representacion en camara alta: 
 paisesSinMujeresCAlta <- camaraAlta%>% filter (totalPorcenCAlta ==0)
@@ -59,39 +72,99 @@ View(paisesSinMujeresCAlta)
 #Paleta colores
 pL<-lacroix_palette("PassionFruit", n = 19, type = "continuous")
 p<-lacroix_palette("PassionFruit", n = 580, type = "continuous")
+p5<-lacroix_palette("PassionFruit", n = 14, type = "continuous")
 pM<-lacroix_palette("PassionFruit", n = 189, type = "continuous")
+
 p1<-lacroix_palette("Pamplemousse",n=580, type = "continuous")
 pL1<-lacroix_palette("Pamplemousse",n = 19, type = "continuous")
 pM1<-lacroix_palette("Pamplemousse",n=189, type = "continuous")
+pL5<-lacroix_palette("Pamplemousse",n=14, type = "continuous")
 
 p2<-lacroix_palette("PeachPear", n = 580, type = "continuous")
 pL2<-lacroix_palette("PeachPear", n = 19, type = "continuous")
 pL22<-lacroix_palette("PeachPear", n = 12, type = "continuous")
 pM2<-lacroix_palette("PeachPear", n = 189, type = "continuous")
+pM5<-lacroix_palette("PeachPear", n = 14, type = "continuous")
 
 p3<-lacroix_palette("PeachPear", type = "paired")
 
 #---------------------------------------------------------------------------------------------
-treemap<- ggplot(camaraAltaLatam, 
-       aes(area = totalPorcenCAlta, fill = pais, label = pais,
+#Treemap Naranja - PeachPear
+#-----------------------------------------------------------------------------------------
+treemap<- ggplot(camaraAltaEuropa, 
+       aes(area = totalPorcenCAlta, fill = pais, label = totalPorcenCAlta,
            '', totalPorcenCAlta )) +
-  geom_treemap() +
-  geom_treemap_text(colour = "white",
+  geom_treemap(colour = "black") +
+  geom_treemap_text(family="Tahoma",
+                    colour = "black",
                     place = "centre",
                     grow = F,
                     reflow = T) +
-  scale_fill_manual(values = pL2) +
-  labs(title = "") +
-  theme_bw() +
-  theme(legend.position = "none")
+  scale_fill_manual(values = pM5) +
+  labs(title = "Porcentaje de mujeres en parlamentos \n de países pertenecientes al continente Europeo", x="", y=" ",
+       caption = "Fuente: #DatosDeMiercoles por Patricia Loto") +
+  theme_grey() +
+  theme(plot.title=element_text(family="Tahoma", hjust=0.5), plot.caption=element_text(family="Palatino", color = "darkblue"), axis.text.x =element_blank(), axis.text.y =element_blank(), axis.ticks.x = element_blank() , axis.ticks.y = element_blank())     
   
 treemap
-
-
-treemap +transition_states(totalPorcenCBaja) +
+treemap +transition_states(pais) +
   shadow_mark()
 
-Latam + transition_time(importaXP) +
+#---------------------------------------------------------------------------------------------
+#Treemap Pamplemousse
+#-----------------------------------------------------------------------------------------
+
+
+treemap2<- ggplot(camaraAltaEuropa, 
+                 aes(area = totalPorcenCAlta, fill = pais, label = totalPorcenCAlta,
+                     '', totalPorcenCAlta )) +
+  geom_treemap(colour = "white") +
+  geom_treemap_text(family="Tahoma",
+                    colour = "white",
+                    place = "centre",
+                    grow = F,
+                    reflow = T) +
+  scale_fill_manual(values = pL5) +
+  labs(title = "Porcentaje de mujeres en parlamentos \n de países pertenecientes al continente Europeo", x="", y=" ",
+       caption = "Fuente: #DatosDeMiercoles  por Patricia Loto") +
+  theme_grey() +
+  theme(plot.title=element_text(family="Tahoma", hjust=0.5), axis.text.x =element_blank(), axis.text.y =element_blank(), axis.ticks.x = element_blank() , axis.ticks.y = element_blank())     
+
+treemap2
+treemap2 +transition_states(pais) +
+  shadow_mark()
+
+#---------------------------------------------------------------------------------------------
+#Treemap Pamplemousse
+#-----------------------------------------------------------------------------------------
+treemap3<- ggplot(camaraAltaEuropa, 
+                  aes(area = totalPorcenCAlta, fill = pais, label = totalPorcenCAlta,
+                      '', totalPorcenCAlta )) +
+  geom_treemap(colour = "black") +
+  geom_treemap_text(family="Tahoma",
+                    colour = "black",
+                    place = "centre",
+                    grow = F,
+                    reflow = T) +
+  scale_fill_manual(values = p5) +
+  labs(title = "Porcentaje de mujeres en parlamentos \n de países pertenecientes al continente Europeo", x="", y=" ",
+       caption = "Fuente: #DatosDeMiercoles por Patricia Loto") +
+  theme_grey() +
+  theme(plot.title=element_text(family="Tahoma", hjust=0.5),plot.caption=element_text(family="Palatino", color = "black", face="bold"), axis.text.x =element_blank(), axis.text.y =element_blank(), axis.ticks.x = element_blank() , axis.ticks.y = element_blank())     
+
+treemap3
+treemap3 +transition_states(pais) +
+  shadow_mark()
+
+
+
+
+
+
+
+
+
+treemap + transition_time(totalPorcenCBaja) +
   ease_aes('linear')+
   
   
