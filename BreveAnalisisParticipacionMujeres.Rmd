@@ -45,10 +45,10 @@ head(datosParlamento)
 tail(datosParlamento)
 ```
 
-```{r datosParlamento, echo=FALSE}
+```{r , echo=FALSE}
 datosParlamento <- clean_names(datosParlamento)
-names(datosParlamento)[6] = "masJoven"
-names(datosParlamento)[7] = "nroIntegrantes"
+#names(datosParlamento)[6] = "masJoven"
+#names(datosParlamento)[7] = "nroIntegrantes"
 names(datosParlamento)[8] = "codPais"
 
 Argentina <-datosParlamento%>% filter(codPais=="arg")
@@ -106,13 +106,22 @@ ggplotly(mujeres, hoverformat='2.F', tooltip = "text")
 ```
 
 
-## Presencia parlamentaria de mujeres en Parlamentos a nivel Regional
-
+## Presencia parlamentaria de mujeres en Parlamentos a nivel Regional - Latinoamérica
+# Gráficos elegidos:
+# Cámara Baja:gganimate con Fondo negro 
+# Cámara Alta: plotly o el mismo que el anterior con la variante de cood_flip y con una paleta distinta "PeachPear"
+# Participación hombres y mujeres
 
 
 ```{r }
 plot(pressure)
 ```
+
+
+
+
+
+
 ## Consideraciones sobre la Fuente de datos utilizada
 
 Este _dataset_ recoge algunos de los datos que se encuentran disponibles en la [plataforma de datos abiertos de la Unión Interparlamentaria](data.ipu.org). La selección y traducción al español estuvo a cargo de [Riva Quiroga](https://twitter.com/rivaquiroga).

@@ -1,4 +1,3 @@
-
 install.packages("easypackages")  #para llamar a varias librerias al mismo tiempo
 library(easypackages)
 
@@ -68,7 +67,7 @@ View(camaraAlta)
 camaraAltaSi <-camaraAlta %>%filter(totalPorcenCAlta>0)
 View(camaraAltaSi)
 
-camaraAltaLatam <- filter(camaraAltaSi, pais %in% c("Argentina", "Bolivia" , "Brasil","Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Puerto Rico", "Perú", "República Dominicana", "Uruguay", "Venezuela"))
+camaraAltaLatam <- filter(camaraAltaSi, pais %in% c("Argentina", "Bolivia" , "Brasil","Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Puerto Rico", "Perú", "República Dominicana", "Uruguay", "Venezuela"))%>% arrange(desc(totalPorcenCAlta))
 View(camaraAltaLatam)
 
 
@@ -177,21 +176,21 @@ mujeresCBajaLATAM2 + transition_states(totalPorcenCBaja, wrap = FALSE) +
 mujeresCBajalat <- ggplot(data =camaraBajaLatam, aes(x=(pais), y=totalPorcenCBaja, colour=pais, fill=totalPorcenCBaja, text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
   geom_bar(size=2, stat="identity", position=position_dodge()) +
   scale_colour_manual(values =pL) +  
- #scale_fill_manual(values =pL) +
+  #scale_fill_manual(values =pL) +
   labs (x = "País", y = "Porcentaje", 
         title= ("Mujeres en los parlamentos \n de Países de Latinoamérica" ),
-  caption = " Fuente: #DatosdeMiercoles", legend=" ") + # agrego título al gráfico
+        caption = " Fuente: #DatosdeMiercoles", legend=" ") + # agrego título al gráfico
   theme (axis.text.x =element_blank(),
          #element_text(angle=90, vjust = 1, hjust=1.1, color="black", size=7),
          plot.title = element_text(#family="Comic Sans MS",
-                                 # size=rel(1), 
-                                   size = 14,
-                                   vjust=1, 
-                                   hjust=0.5,                        #Para separarlo del gráfico
-                                   #position_identity(center),   
-                                   face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
-                                   color="white", #Color del texto  color=maroon, lightblue
-                                   lineheight=1.0),legend.text= element_blank(),
+           # size=rel(1), 
+           size = 14,
+           vjust=1, 
+           hjust=0.5,                        #Para separarlo del gráfico
+           #position_identity(center),   
+           face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
+           color="white", #Color del texto  color=maroon, lightblue
+           lineheight=1.0),legend.text= element_blank(),
          legend.position = "none",
          panel.border = element_blank(),
          panel.background = element_blank(),
@@ -212,13 +211,6 @@ xaxis <- list(title = "",
               linewidth = 2,
               autotick = FALSE,
               ticks = '')
-             # tickcolor = 'rgb(204, 204, 204)',
-              #tickwidth = 2,
-              #ticklen = 5,
-              #tickfont = list(family = 'Arial',
-               #               size = 12,
-                #              color = 'rgb(82, 82, 82)'))
-
 
 #--------------------------------------------------------------------------------------------------------------------------------
 #PLOTLY - ok para publicar
@@ -231,7 +223,7 @@ p<- plot_ly (x = camaraBajaLatam$pais, y = camaraBajaLatam$totalPorcenCBaja, col
                                                                        title = "País"),
                                                           yaxis = list(fixedrange = T, 
                                                                        title = "Porcentaje"))
- 
+
 p
 
 #------------------------------------------------------------------------------------------------------------------------------
@@ -248,14 +240,14 @@ mujeresCBajaLATAM <- ggplot(data =camaraBajaLatam, aes((pais), y=totalPorcenCBaj
         caption = " Fuente: #DatosdeMiercoles por Patricia Loto", legend=" ") + # agrego título al gráfico
   theme (axis.text.x =element_text(angle=90, vjust = 1, hjust=0.8, color="black", size=10),
          plot.title = element_text(family="Palatino",
-           # size=rel(1), 
-           size = 14,
-           vjust=1.4, 
-           hjust=0.5,                        
-          # position_identity(center),   
-           face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
-           color="black", #Color del texto  color=maroon, lightblue
-           lineheight=1.0),legend.text= element_blank(),
+                                   # size=rel(1), 
+                                   size = 14,
+                                   vjust=1.4, 
+                                   hjust=0.5,                        
+                                   # position_identity(center),   
+                                   face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
+                                   color="black", #Color del texto  color=maroon, lightblue
+                                   lineheight=1.0),legend.text= element_blank(),
          plot.subtitle = element_text(hjust = 0.5),
          plot.caption = element_text(color = "green", face = "bold", size = 9),
          legend.position = "none",
@@ -303,121 +295,122 @@ Latam <- ggplot(camaraBajaLatam, aes(reorder(pais, totalPorcenCBaja), totalPorce
 Latam
 ggplotly(Latam, hoverformat='2.F', tooltip = "text")
 
-  #theme(aspect.ratio=1)
-  Latam + transition_time(importaXP) +
+#theme(aspect.ratio=1)
+Latam + transition_time(importaXP) +
   ease_aes('linear')+
   shadow_mark(alpha = 1, size = 2)
 # ------------------------------------------------------------------------------- 
-  #gganimate
-  
-  ggplot(camaraAlta, aes(totalPorcenCAlta, totalIntegrantesCAlta, size = totalPorcenCAlta, colour = pais)) +
-    geom_point(alpha = 1, show.legend = TRUE) +
-    scale_colour_manual(values = p2) +
-    #scale_size(range = c(2, 12)) +
-    scale_x_log10() +
-   theme(legend.position = " " , legend.text= element_blank())
-    
-   # facet_grid(~pais) +
-    # Here comes the gganimate specific bits
-    labs(title = '"Mujeres en los parlamentos \n de Países de Latinoamérica" : round({frame_time},2)', x = 'Porcentaje Participación', y = 'Total Integrantes') +
-    transition_time(totalPorcenCBaja) +
-    shadow_mark(alpha = 1, size = 2)
-   # ease_aes('linear')
-  
+#gganimate
 
-  #------------------------------------------------------------------------------------------------------------------------------
+ggplot(camaraAlta, aes(totalPorcenCAlta, totalIntegrantesCAlta, size = totalPorcenCAlta, colour = pais)) +
+  geom_point(alpha = 1, show.legend = TRUE) +
+  scale_colour_manual(values = p2) +
+  #scale_size(range = c(2, 12)) +
+  scale_x_log10() +
+  theme(legend.position = " " , legend.text= element_blank())
+
+# facet_grid(~pais) +
+# Here comes the gganimate specific bits
+labs(title = '"Mujeres en los parlamentos \n de Países de Latinoamérica" : round({frame_time},2)', x = 'Porcentaje Participación', y = 'Total Integrantes') +
+  transition_time(totalPorcenCBaja) +
+  shadow_mark(alpha = 1, size = 2)
+# ease_aes('linear')
+
+
+#------------------------------------------------------------------------------------------------------------------------------
 # Gráficos Cámara alta
 #------------------------------------------------------------------------------------------------------------------------------
-  # camara alta LATAM
-  LatamAlta <- ggplot(camaraAltaLatam, aes(reorder(pais, totalPorcenCAlta), totalPorcenCAlta, size =(totalPorcenCAlta), text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCAlta, '%' ))) + 
-    #geom_point(show.legend = F) + 
-    geom_col(aes(fill=pais)) +
-    scale_fill_manual(values =pL1) +  #pL2
-    coord_flip()+ 
-    theme_classic()+   #theme_wsj()theme_classic() +theme_economist()
-    labs(title = "Mujeres en los parlamentos \n de Países de Latinoamérica",
-         subtitle = "Al 1ro de enero de 2019",
-         x = "",
-         y = "Porcentaje",
-         caption="#DatosDeMiercoles por Patricia Loto", legend=" ") +
-    theme(axis.text.x =element_text(color="black", size=9),  #
-          axis.text.y =element_text(color="black", size=9),
-          plot.caption = element_text(color = "brown", face ="bold", size = 10, vjust=1),  ##562457
-          plot.title = element_text(size=10,
-                                    family = "Palatino",
-                                    vjust=2,
-                                    hjust=0.5,
-                                    #position_identity(center),   
-                                    face="bold",       
-                                    color="black",     
-                                    lineheight=1.2), legend.position= " ", legend.text= element_blank(),
-          plot.subtitle = element_text(hjust = 0.5, size = 11))+  xlim(0,60)
-    
-  LatamAlta
-  
-    ggplotly(Latam, hoverformat='2.F', tooltip = "text")
-  
-  #theme(aspect.ratio=1)
-  Latam + transition_time(importaXP) +
-    ease_aes('linear')+
-    shadow_mark(alpha = 1, size = 2)
-  #--------------------------------------------------------------------------------------
-  # camara baja LATAM
-  LatamA <- ggplot(camaraAltaLatam, aes(reorder(pais, totalPorcenCAlta), totalPorcenCAlta, size =(totalPorcenCAlta), text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCAlta, '%' ))) + 
-    #geom_point(show.legend = F) + 
-    geom_col(aes(fill=pais)) +
-    scale_fill_manual(values =pL22) +  #pL2
-    coord_flip()+ 
-    theme_classic()+ 
-    facet_grid(~ pais)+
-    #theme_wsj()theme_classic() +theme_economist()
-    labs(title = "Mujeres en los parlamentos \n de Países de Latinoamérica" ,
-         subtitle = "Período: Al 1ro de enero de 2019",
-         x = "",
-         y = "Porcentaje",
-         legend=" ",
-         caption="#DatosDeMiercoles por Patricia Loto") +
-    theme(axis.text.x =element_text(color="black", size=9),  #
-          axis.text.y =element_text(color="black", size=9),
-          plot.caption = element_text(color = "lightblue", face ="bold", size = 10, vjust=1),  ##562457
-          plot.title = element_text(size=10,
-                                    family = "Palatino",
-                                    #size=rel(0.4),
-                                    vjust=2,
-                                    hjust=0.5,
-                                    #position_identity(center),   
-                                    face="bold",       
-                                    color="black",     
-                                    lineheight=1.2), legend.title = "", legend.position= " ", legend.text= element_blank())
-          #plot.subtitle = element_text(hjust = 0.5, size = 11))
-  LatamA
-  ggplotly(LatamA, hoverformat='2.F', tooltip = "text", showlegend =FALSE)
-  
-  #theme(aspect.ratio=1)
-  Latam + transition_time(importaXP) +
-    ease_aes('linear')+
-    shadow_mark(alpha = 1, size = 2)
-  
-  
-  p<- plot_ly (reorder(camaraAltaLatam$pais, camaraAltaLatam$totalPorcenCAlta), y = camaraAltaLatam$totalPorcenCAlta, color = camaraAltaLatam$pais,  text = paste('Lealtad',camaraAltaLatam$pais, ":",camaraAltaLatam$totalPorcenCAlta), 
-               hoverinfo = "text", type = "bar") %>% layout(title= 'Temporada de la 1 a la 6', legend= 'Personaje',
-                                                            xaxis = list(showline = F, 
-                                                                         showticklabels = F, 
-                                                                         fixedrange = T,
-                                                                         showlegend =TRUE,
-                                                                         title = "Lealtad"),
-                                                            yaxis = list(fixedrange = T, 
-                                                                         title = ""))
-  
-  
-  p
-  
-  
-  
-  
-  
-  
-  
+# camara alta LATAM
+LatamAlta <- ggplot(camaraAltaLatam, aes(reorder(pais, totalPorcenCAlta), totalPorcenCAlta, size =(totalPorcenCAlta), text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCAlta, '%' ))) + 
+  #geom_point(show.legend = F) + 
+  geom_col(aes(fill=pais)) +
+  scale_fill_manual(values =pL2) +  #pL2
+  coord_flip()+ 
+  theme_classic()+   #theme_wsj()theme_classic() +theme_economist()
+  labs(title = "Mujeres en los parlamentos de Países de Latinoamérica\n Cámara Alta o Senado",
+       subtitle = "Al 1ro de enero de 2019",
+       x = "",
+       y = "% Mujeres",
+       caption="#DatosDeMiercoles por Patricia Loto", legend=" ") +
+  theme(axis.text.x =element_text(color="black", size=9),  #
+        axis.text.y =element_text(color="black", size=9),
+        plot.caption = element_text(color = "brown", face ="bold", size = 10, vjust=1),  ##562457
+        plot.title = element_text(size=10,
+                                  family = "Palatino",
+                                  vjust=2,
+                                  hjust=0.5,
+                                  #position_identity(center),   
+                                  face="bold",       
+                                  color="black",     
+                                  lineheight=1.2), legend.position= " ", legend.text= element_blank(),
+        plot.subtitle = element_text(hjust = 0.5, size = 11))
+#+  xlim(0,60)
+
+LatamAlta
+
+ggplotly(LatamAlta, hoverformat='2.F', tooltip = "text")
+
+#theme(aspect.ratio=1)
+Latam + transition_time(importaXP) +
+  ease_aes('linear')+
+  shadow_mark(alpha = 1, size = 2)
+#--------------------------------------------------------------------------------------
+# camara baja LATAM
+LatamA <- ggplot(camaraAltaLatam, aes(reorder(pais, totalPorcenCAlta), totalPorcenCAlta, size =(totalPorcenCAlta), text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCAlta, '%' ))) + 
+  #geom_point(show.legend = F) + 
+  geom_col(aes(fill=pais)) +
+  scale_fill_manual(values =pL22) +  #pL2
+  coord_flip()+ 
+  theme_classic()+ 
+  facet_grid(~ pais)+
+  #theme_wsj()theme_classic() +theme_economist()
+  labs(title = "Mujeres en los parlamentos \n de Países de Latinoamérica" ,
+       subtitle = "Período: Al 1ro de enero de 2019",
+       x = "",
+       y = "Porcentaje",
+       legend=" ",
+       caption="#DatosDeMiercoles por Patricia Loto") +
+  theme(axis.text.x =element_text(color="black", size=9),  #
+        axis.text.y =element_text(color="black", size=9),
+        plot.caption = element_text(color = "lightblue", face ="bold", size = 10, vjust=1),  ##562457
+        plot.title = element_text(size=10,
+                                  family = "Palatino",
+                                  #size=rel(0.4),
+                                  vjust=2,
+                                  hjust=0.5,
+                                  #position_identity(center),   
+                                  face="bold",       
+                                  color="black",     
+                                  lineheight=1.2), legend.title = "", legend.position= " ", legend.text= element_blank())
+#plot.subtitle = element_text(hjust = 0.5, size = 11))
+LatamA
+ggplotly(LatamA, hoverformat='2.F', tooltip = "text", showlegend =FALSE)
+
+#theme(aspect.ratio=1)
+Latam + transition_time(importaXP) +
+  ease_aes('linear')+
+  shadow_mark(alpha = 1, size = 2)
+
+
+p<- plot_ly (reorder(camaraAltaLatam$pais, camaraAltaLatam$totalPorcenCAlta), y = camaraAltaLatam$totalPorcenCAlta, color = camaraAltaLatam$pais,  text = paste('Lealtad',camaraAltaLatam$pais, ":",camaraAltaLatam$totalPorcenCAlta), 
+             hoverinfo = "text", type = "bar") %>% layout(title= 'Temporada de la 1 a la 6', legend= 'Personaje',
+                                                          xaxis = list(showline = F, 
+                                                                       showticklabels = F, 
+                                                                       fixedrange = T,
+                                                                       showlegend =TRUE,
+                                                                       title = "Lealtad"),
+                                                          yaxis = list(fixedrange = T, 
+                                                                       title = ""))
+
+
+p
+
+
+
+
+
+
+
 #--------------------------------------------------------------------------------------
 #GRAFICOS paises con porcentaje de mujeres 
 #-----------------------------------------------------------------------------------------
@@ -429,9 +422,9 @@ mujeres <- ggplot(data =mundo, aes(x=(pais), y=totalMujeres, colour=pais, text =
   #scale_fill_manual(values =c("turquoise", "maroon")) +
   labs (x = "País", y = "Porcentaje (%)", 
         title= ("Mujeres en el Parlamento"))+
-        #caption = " Fuente: #DatosdeMiercoles", legend=" ")+ # agrego título al gráfico
+  #caption = " Fuente: #DatosdeMiercoles", legend=" ")+ # agrego título al gráfico
   theme (axis.text.x =element_blank(),
-           #element_text(angle=90, vjust = 1, hjust=1.1, color="black", size=7),
+         #element_text(angle=90, vjust = 1, hjust=1.1, color="black", size=7),
          plot.title = element_text(family="Comic Sans MS",
                                    size=rel(1),                      #Tamaño relativo de la letra del título
                                    vjust=1, 
@@ -446,8 +439,8 @@ mujeres <- ggplot(data =mundo, aes(x=(pais), y=totalMujeres, colour=pais, text =
          panel.grid = element_blank(),
          rect = element_rect(fill = "black", color = "black"),
          text = element_text(family = "Roboto Condensed", colour = "white", size = 12))+
-
-#-----------------------------------------------------------------------------------------
+  
+  #-----------------------------------------------------------------------------------------
 
 # con PLOTLY con total de mujeres en todas las camaras
 
@@ -593,15 +586,5 @@ mujeres2 <- ggplot(data =latinoamerica, aes(x=(pais), y=totalMujeres, colour=pai
 mujeres2
 ggplotly(mujeres2, hoverformat='2.F', tooltip = "text")
 #ggploty(mujeres)
-
-
-
-
-
-
-
-
-
-
 
 
