@@ -27,11 +27,10 @@ knitr::opts_chunk$set(echo = TRUE)
 | iso_pais | caracter | código ISO del país
 
 ```{r, echo=FALSE, include=FALSE}
-# install.packages(readr)
 library(tidyverse)
 library(easypackages)
 
-libraries("tidyverse","here","janitor","lubridate","gganimate","gifski","png","LaCroixColoR", "extrafont", "plotly")  #  ó todo el resto
+libraries("tidyverse","here","janitor","lubridate","gganimate","gifski","png","LaCroixColoR", "extrafont", "plotly","treemapify")  #  ó todo el resto
 
 datosParlamento <- readr::read_csv("https://raw.githubusercontent.com/cienciadedatos/datos-de-miercoles/master/datos/2019/2019-05-08/datos_uip.csv")
 #View(datosParlamento)
@@ -39,7 +38,7 @@ datosParlamento <- readr::read_csv("https://raw.githubusercontent.com/cienciaded
 ## Vistazo de los datos 
 
 ```{r}
-#write.csv(datos_uip,"datosParlamento.csv")
+
 dim(datosParlamento)
 head(datosParlamento)
 tail(datosParlamento)
@@ -47,7 +46,8 @@ tail(datosParlamento)
 
 ```{r , echo=FALSE}
 datosParlamento <- clean_names(datosParlamento)
-#names(datosParlamento)[6] = "masJoven"
+view(datosParlamento)
+names(datosParlamento)[6] = "masJoven"
 #names(datosParlamento)[7] = "nroIntegrantes"
 names(datosParlamento)[8] = "codPais"
 
@@ -56,29 +56,56 @@ View(Argentina)
 porcenMujeres <-trunc(datosParlamento$porcentaje_mujeres,0)
 View(porcenMujeres)
 
-mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=(sum(porcentaje_mujeres,na.rm = TRUE)),totalMujeres=round((totalporcenM*10), 0), totalIntegrantes=(sum(nroIntegrantes, na.rm = TRUE)),totalporcenH=(100- totalporcenM))
+mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=(sum(porcentaje_mujeres,na.rm = TRUE)),totalMujeres=round((totalporcenM*10), 0), totalIntegrantes=(sum(datosParlamento$nro_integrantes, na.rm = TRUE)),totalporcenH=(100- totalporcenM))
 
-mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=(sum(porcentaje_mujeres,na.rm = TRUE)),totalMujeres=round((totalporcenM*10), 0), totalIntegrantes=(sum(nroIntegrantes, na.rm = TRUE)),totalporcenH=(100- totalporcenM))
-View(mundo)                                                                                                            
+mundo<- datosParlamento%>% group_by(codPais, pais)%>% summarise(totalporcenM=(sum(porcentaje_mujeres,na.rm = TRUE)),totalMujeres=round((totalporcenM*10), 0), totalIntegrantes=(sum(datosParlamento$nro_integrantes, na.rm = TRUE)),totalporcenH=(100- totalporcenM))
+View(mundo)  
+#--------------------------------------------------------------------------------------------------
+#CÁMARA BAJA O UNICAMERAL
+#--------------------------------------------------------------------------------------------------
+#Agrupo por cámara baja o única sin año
 
+camaraBaja<- datosParlamento%>% group_by(codPais, pais)%>% filter (camara =="baja" | camara =="única")%>%
+  summarise(totalPorcenCBaja=(sum(porcentaje_mujeres,na.rm = TRUE)), totalIntegrantesCBaja=(sum(numero_integrantes, na.rm = TRUE)))%>%arrange(totalPorcenCBaja)
+View(camaraBaja)
 
+#Panamá aparece sin datos pero en la fuente original si los tienen
 
+# selecciono sólo los que tienen representacion en cámara baja o única
+camaraBajaSi <-camaraBaja %>%filter(totalPorcenCBaja>0)
+View(camaraBajaSi)
+
+camaraBajaLatam <- filter(camaraBajaSi, pais %in% c("Argentina", "Bolivia" , "Brasil","Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Puerto Rico", "Perú", "República Dominicana", "Uruguay", "Venezuela"))
+View(camaraBajaLatam)
+
+#sólo para mejorar la visualización
+camaraBajaLatam[camaraBajaLatam$pais == "República Dominicana",2]<-"Rep.Dominicana"
+#--------------------------------------------------------------------------------------------------
+#CÁMARA ALTA O SENADO
+#--------------------------------------------------------------------------------------------------
+#Agrupo por cámara alta o senado
+camaraAlta<- datosParlamento%>% group_by(codPais, pais)%>% filter (camara =="alta")%>%
+  summarise(totalPorcenCAlta=(sum(porcentaje_mujeres,na.rm = TRUE)), totalIntegrantesCAlta=(sum(datosParlamento$numero_integrantes, na.rm = TRUE)))%>%arrange(totalPorcenCAlta)
+View(camaraAlta)
+
+# selecciono sólo los que tienen representacion en cámara baja o única
+camaraAltaSi <-camaraAlta %>%filter(totalPorcenCAlta>0)
+View(camaraAltaSi)
+
+camaraAltaLatam <- filter(camaraAltaSi, pais %in% c("Argentina", "Bolivia" , "Brasil","Chile", "Colombia", "Costa Rica", "Cuba", "Ecuador", "El Salvador", "Guatemala", "Honduras", "México", "Nicaragua", "Panamá", "Paraguay", "Puerto Rico", "Perú", "República Dominicana", "Uruguay", "Venezuela"))%>% arrange(desc(totalPorcenCAlta))
+View(camaraAltaLatam)
 
 ```
 
-
-
 ## Presencia parlamentaria de mujeres en Parlamentos a nivel Mundial
-
-
 
 ```{r datosParlamento}
 #Paleta colores
 p<-lacroix_palette("PassionFruit", n = 580, type = "continuous")
 p1<-lacroix_palette("Pamplemousse",n=580, type = "continuous")
 p2<-lacroix_palette("PeachPear", n = 580, type = "continuous")
-p3<-lacroix_palette(type = "paired")
-mujeres <- ggplot(data =mundo, aes(x=(pais), y=totalporcenM, colour=pais, text = paste('<b> Porcentaje:</b>', totalporcenM, '%', '\n <b>País:</b>', pais))) + 
+
+mujeres <- ggplot(data =mundo, aes(x=(reorder(pais, mundo$totalPorcenCBaja)), y=totalporcenM, colour=pais, text = paste('<b> Porcentaje:</b>', totalporcenM, '%', '\n <b>País:</b>', pais))) + 
   geom_bar(size=1.5, stat="identity", position=position_dodge()) +
   scale_colour_manual(values =p) +  
   #scale_fill_manual(values =c("turquoise", "maroon")) +
@@ -101,26 +128,108 @@ mujeres <- ggplot(data =mundo, aes(x=(pais), y=totalporcenM, colour=pais, text =
          panel.grid = element_blank(),
          rect = element_rect(fill = "black", color = "black"),
          text = element_text(family = "Verdana", colour = "white", size = 12))
-
+mujeres
 ggplotly(mujeres, hoverformat='2.F', tooltip = "text")
 ```
 
 
-## Presencia parlamentaria de mujeres en Parlamentos a nivel Regional - Latinoamérica
 # Gráficos elegidos:
-# Cámara Baja:gganimate con Fondo negro 
-# Cámara Alta: plotly o el mismo que el anterior con la variante de cood_flip y con una paleta distinta "PeachPear"
-# Participación hombres y mujeres
-
+## Presencia parlamentaria de mujeres en Cámara Baja a nivel Regional - Latinoamérica (gganimate con Fondo negro o fondo blancopassion fruit)
 
 ```{r }
-plot(pressure)
+#------------------------------------------------------------------------------------------------------------------------------
+#GGgplot en black PUBLICADO
+#---------------------------------------
+mujeresLATAMOrdenada <- ggplot(data =camaraBajaLatam, aes((reorder(pais, totalPorcenCBaja)), y=totalPorcenCBaja, fill=pais, text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
+  geom_bar(stat="identity", position=position_dodge()) +              #aes(reorder(pais, totalPorcenCBaja)
+  scale_colour_manual(values =pL) +  
+  scale_fill_manual(values =pL) +
+  labs (x = "", y = "Porcentaje", 
+        title= ("Mujeres en los parlamentos \n de Países de Latinoamérica" ),
+        subtitle= ("Cámara baja o única"),
+        caption = " Fuente: #DatosdeMiercoles por Patricia Loto", legend=" ") +
+  geom_text(aes(y = totalPorcenCBaja,label = totalPorcenCBaja),
+            position = position_stack(), size=2.5, vjust=2, hjust=0.5 ,col="white")+ # agrego título al gráfico
+  theme (axis.text.x =element_text(angle=90, vjust = 1, hjust=0.8, color="white", size=11),
+         axis.text.y= element_text(color="white", size=11),
+         plot.title = element_text(family="Palatino",
+                                   # size=rel(1), 
+                                   size = 14,
+                                   vjust=1.4, 
+                                   hjust=0.5,                        
+                                   # position_identity(center),   
+                                   face="bold",      #Tipo: Letra negra, otras posibilidades son "plain", "italic", "bold" y "bold.itali
+                                   color="white", #Color del texto  color=maroon, lightblue
+                                   lineheight=1.0),legend.text= element_blank(),
+         plot.subtitle = element_text(hjust = 0.5, color="white"),
+         plot.caption = element_text(color = "green", face = "bold", size = 9),
+         legend.position = "none",
+         panel.border = element_blank(),
+         panel.background = element_blank(),
+         panel.grid = element_blank(),
+         rect = element_rect(fill = "black", color = "black"))+
+  ylim(0,60)
+
+mujeresLATAMOrdenada
+ggsave("mujeresLATAMOrdenada.png",width = 10, height = 5, dpi = "retina")
 ```
 
+# Presencia parlamentaria de mujeres en Cámara Alta o Senado a nivel Regional - Latinoamérica (plotly o el mismo que el anterior con la variante de cood_flip y con una paleta distinta "PeachPear") 
+```{r}
+#------------------------------------------------------------------------------------------------------------------------------
+# camara baja LATAM
+Latam <- ggplot(camaraBajaLatam, aes(reorder(pais, totalPorcenCBaja), totalPorcenCBaja, size =(totalPorcenCBaja), text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
+  #geom_point(show.legend = F) + 
+  geom_col(aes(fill=pais)) +
+  scale_fill_manual(values =pL22) +  #pL2
+  coord_flip()+ 
+  theme_classic()+   #theme_wsj()theme_classic() +theme_economist()
+  labs(title = "Mujeres en los parlamentos \n de Países de Latinoamérica" ,
+       subtitle = "Período:2019",
+       x = "País",
+       y = "Porcentaje",
+       caption="#DatosDeMiercoles por Patricia Loto", legend=" ") +
+  theme(axis.text.x =element_text(color="black", size=9),  #
+        axis.text.y =element_text(color="black", size=9),
+        plot.caption = element_text(color = "lightblue", face ="bold", size = 10, vjust=1),  ##562457
+        plot.title = element_text(size=10,
+                                  family = "Palatino",
+                                  #size=rel(0.4),
+                                  vjust=2,
+                                  hjust=0.5,
+                                  #position_identity(center),   
+                                  face="bold",       
+                                  color="black",     
+                                  lineheight=1.2), legend.position= " ", legend.text= element_blank(),
+        plot.subtitle = element_text(hjust = 0.5, size = 11))
+Latam
+ggplotly(Latam, hoverformat='2.F', tooltip = "text")
+ggsave("Latam.png",width = 10, height = 5, dpi = "retina")
+```
 
+# Presencia parlamentaria de mujeres en Cámara Alta o Senado en países del continente Europeo
+```{r}
+#Treemap Pamplemousse
+#-----------------------------------------------------------------------------------------
+pL5<-lacroix_palette("Pamplemousse",n=14, type = "continuous")
+treemap2<- ggplot(camaraAltaEuropa, 
+                 aes(area = totalPorcenCAlta, fill = pais, label = totalPorcenCAlta,
+                     '', totalPorcenCAlta )) +
+  geom_treemap(colour = "white") +
+  geom_treemap_text(family="Tahoma",
+                    colour = "white",
+                    place = "centre",
+                    grow = F,
+                    reflow = T) +
+  scale_fill_manual(values = pL5) +
+  labs(fill ="", title = "Porcentaje de mujeres en parlamentos \n de países pertenecientes al continente Europeo", x="", y=" ",
+       caption = "Fuente: #DatosDeMiercoles  por Patricia Loto") +
+  theme_grey() +
+  theme(plot.title=element_text(family="Tahoma", hjust=0.5), plot.caption=element_text(family="Palatino", color = "pink", face="bold"), axis.text.x =element_blank(), axis.text.y =element_blank(), axis.ticks.x = element_blank() , axis.ticks.y = element_blank())     
 
-
-
+treemap2
+ggsave("TreemapParlamentoEuropeo2.png", width = 10, height = 5, dpi = "retina")
+```
 
 ## Consideraciones sobre la Fuente de datos utilizada
 

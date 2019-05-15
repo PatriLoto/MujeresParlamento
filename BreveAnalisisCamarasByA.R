@@ -1,7 +1,7 @@
 install.packages("easypackages")  #para llamar a varias librerias al mismo tiempo
 library(easypackages)
 
-libraries("tidyverse","here","janitor","lubridate","gganimate","gifski","png","LaCroixColoR", "extrafont","plotly") 
+libraries("tidyverse","here","janitor","lubridate","gganimate","gifski","png","LaCroixColoR", "extrafont","plotly", "treemapify") 
 
 # se debe instalar la fuente en wintendo
 # font_import(paths = "R/2019/2019-04-17/")
@@ -35,7 +35,7 @@ View(mundo)
 camaraBaja<- datosParlamento%>% group_by(codPais, pais)%>% filter (camara =="baja" | camara =="única")%>%
   summarise(totalPorcenCBaja=(sum(porcentaje_mujeres,na.rm = TRUE)), totalIntegrantesCBaja=(sum(numero_integrantes, na.rm = TRUE)))%>%arrange(totalPorcenCBaja)
 View(camaraBaja)
-#camaraBaja[camaraBaja$pais == "Panamá",3]<-'18.3'
+
 #Panamá aparece sin datos pero en la fuente original si los tienen
 
 # selecciono sólo los que tienen representacion en cámara baja o única
@@ -91,7 +91,7 @@ p3<-lacroix_palette("PeachPear",n = 19, type = "paired")
 #------------------------------------------------------------------------------------------------------------------------------
 #GGanimate en black PUBLICADO
 #---------------------------------------
-mujeresLATAMOrdenada <- ggplot(data =camaraBajaLatam, aes(((pais)), y=totalPorcenCBaja, fill=pais, text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
+mujeresLATAMOrdenada <- ggplot(data =camaraBajaLatam, aes((reorder(pais, totalPorcenCBaja)), y=totalPorcenCBaja, fill=pais, text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
   geom_bar(stat="identity", position=position_dodge()) +              #aes(reorder(pais, totalPorcenCBaja)
   scale_colour_manual(values =pL) +  
   scale_fill_manual(values =pL) +
@@ -121,6 +121,8 @@ mujeresLATAMOrdenada <- ggplot(data =camaraBajaLatam, aes(((pais)), y=totalPorce
          rect = element_rect(fill = "black", color = "black"))+
   ylim(0,60)
 mujeresLATAMOrdenada
+ggsave("mujeresLATAMOrdenada.png",width = 10, height = 5, dpi = "retina")
+
 #plotly Puede publicarse es hermoso
 ggplotly(mujeresLATAMOrdenada, hoverformat='2.F', tooltip = "text")
 #ggploty(mujeres)
@@ -131,7 +133,7 @@ mujeresLATAMOrdenada + transition_states(totalPorcenCBaja, wrap = FALSE) +
 
 #------------------------------------------------------------------------------------------------------------------------------
 # con GGANIMATE con porcentaje de mujeres en camara Baja o única latinoamerica fondo beige paleta:PeachPear
-mujeresCBajaLATAM2 <- ggplot(data =camaraBajaLatam, aes((pais), y=totalPorcenCBaja, fill=pais,label="TRUE", text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
+mujeresCBajaLATAM2 <- ggplot(data =camaraBajaLatam, aes(reorder(pais, totalPorcenCBaja), y=totalPorcenCBaja, fill=pais,label="TRUE", text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
   geom_bar(size=2, stat="identity", position=position_dodge()) +             #aes(reorder(pais, totalPorcenCBaja),
   #scale_colour_manual(values =pL2) +  
   scale_fill_manual(values =pL2) +
@@ -160,6 +162,7 @@ mujeresCBajaLATAM2 <- ggplot(data =camaraBajaLatam, aes((pais), y=totalPorcenCBa
 #text = element_text(family = "Palatino", colour = "black", size = 14))+
 
 mujeresCBajaLATAM2
+ggsave("mujeresCBajaLATAM2.png",width = 10, height = 5, dpi = "retina")
 #para publicar
 mujeresCBajaLATAM2 + transition_states(totalPorcenCBaja, wrap = FALSE) +
   shadow_mark()+
