@@ -105,7 +105,7 @@ p<-lacroix_palette("PassionFruit", n = 580, type = "continuous")
 p1<-lacroix_palette("Pamplemousse",n=580, type = "continuous")
 p2<-lacroix_palette("PeachPear", n = 580, type = "continuous")
 
-mujeres <- ggplot(data =mundo, aes(x=(reorder(pais, mundo$totalPorcenCBaja)), y=totalporcenM, colour=pais, text = paste('<b> Porcentaje:</b>', totalporcenM, '%', '\n <b>País:</b>', pais))) + 
+mujeres <- ggplot(data =mundo, aes(x=(reorder(mundo$pais, mundo$totalPorcenCBaja)), y=totalporcenM, colour=pais, text = paste('<b> Porcentaje:</b>', totalporcenM, '%', '\n <b>País:</b>', pais))) + 
   geom_bar(size=1.5, stat="identity", position=position_dodge()) +
   scale_colour_manual(values =p) +  
   #scale_fill_manual(values =c("turquoise", "maroon")) +
@@ -128,7 +128,7 @@ mujeres <- ggplot(data =mundo, aes(x=(reorder(pais, mundo$totalPorcenCBaja)), y=
          panel.grid = element_blank(),
          rect = element_rect(fill = "black", color = "black"),
          text = element_text(family = "Verdana", colour = "white", size = 12))
-mujeres
+#mujeres
 ggplotly(mujeres, hoverformat='2.F', tooltip = "text")
 ```
 
@@ -167,9 +167,8 @@ mujeresLATAMOrdenada <- ggplot(data =camaraBajaLatam, aes((reorder(pais, totalPo
          panel.border = element_blank(),
          panel.background = element_blank(),
          panel.grid = element_blank(),
-         rect = element_rect(fill = "black", color = "black"))+
-  ylim(0,60)
-
+         rect = element_rect(fill = "black", color = "black"))
+ 
 mujeresLATAMOrdenada
 ggsave("mujeresLATAMOrdenada.png",width = 10, height = 5, dpi = "retina")
 ```
@@ -181,7 +180,7 @@ ggsave("mujeresLATAMOrdenada.png",width = 10, height = 5, dpi = "retina")
 Latam <- ggplot(camaraBajaLatam, aes(reorder(pais, totalPorcenCBaja), totalPorcenCBaja, size =(totalPorcenCBaja), text = paste('<b>País:</b>', pais,'\n <b> Mujeres:</b>', totalPorcenCBaja, '%' ))) + 
   #geom_point(show.legend = F) + 
   geom_col(aes(fill=pais)) +
-  scale_fill_manual(values =pL22) +  #pL2
+  scale_fill_manual(values =pL2) +  #pL2
   coord_flip()+ 
   theme_classic()+   #theme_wsj()theme_classic() +theme_economist()
   labs(title = "Mujeres en los parlamentos \n de Países de Latinoamérica" ,
