@@ -1,0 +1,185 @@
+---
+title: "Introducción a R Markdown"
+subtitle: "⚔<br/> y Cómo hacer que tu trabajo sea reproducible"
+author: "Patricia Loto "
+institute: "para RLadies Resitencia-Corrientes"
+date: "16/05/2019"
+output:
+  xaringan::moon_reader:
+    css: ["default", "rladies", "rladies-fonts"]
+    #css: [default, metropolis, metropolis-fonts]
+    lib_dir: libs
+    nature:
+       countdown: 60000
+      #highlightStyle: github
+      #highlightLines: true
+      #countIncrementalSlides: false
+     
+---
+
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharingan_triple.svg)
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+???
+
+Image credit: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sharingan_triple.svg)
+
+---
+class: center, middle
+
+# ¿Por qué es importante aprender RMarkdown (Rmd)?
+
+"Un Archivo R	Markdown	(.Rmd) es un registro de tu investigación o análisis de datos. Contiene el código que un científico necesita para reproducir tu trabajo junto con la narración que un lector necesita para entender tu trabajo."
+
+---
+class: center, middle
+
+# Pero...¿Qué es RMarkdown (Rmd)?
+
+Es un tipo de archivo que integra texto, código R y resultados.
+
+RMarkdown permite la generación de informes, presentaciones, páginas web,
+
+tesis y libros, entre otros.
+
+---
+class: inverse, center, middle
+
+# ¿Para qué sirve Rmd?
+• Para comunicarse con quienes están interesados en los resultados y las conclusiones de un analisis (no en el código usado para el analisis).
+
+• Para colaboraciones con otros interesados en resultados, conclusiones y cómo se alcanzaron (interesados en el código).
+
+• Se puede usar como un cuaderno de anotaciones moderno en donde uno intercala código R, resultados y comentarios. Mucho mejor que un script habitual.
+
+---
+
+# Partes de un Archivo .Rmd
+
+ • **Encabezado  o cabecera YAML**
+ 
+ • **Títulos**
+ 
+ • **Texto**
+ 
+ • **Código chunk o trozo de código**
+
+```{r eval=FALSE, tidy=FALSE}
+
+```
+
+---
+class: inverse,left, middle
+
+# ¿Qué es un chunk?
+
+Es un bloque de código R que R Markdown va a ejecutar e incluir los resultados en el ambiente de R.
+
+- Si tienen una salida explícita (por ej, tabla, gráfico) estos resultados pueden incluirse o no en el documento final.
+Haciendo click se genera el chunk, te recomendamos usar Ctrl+Alt+i o tipeando ```{r} ``` (estos tics si no los tienen en el teclado se hacen con alt + 96).
+- Cada chunk se maneja con sus propias opciones o puede configurarse de manera general en el primer chunk para que los chunks funcionen de igual manera.
+
+---
+class: inverse, center, middle
+# ¿Cómo genero un documento R Markdown?
+
+- Ir al menú `File -> New File -> R Markdown -> Document`;<sup>1</sup>
+
+
+- Luego ir al botón `Knit` para compilar y ejecutar el código;
+ Se generaron dos archivos, uno con extensión Rmd y otro con el formato seleccionado: Pdf, Word o Html.
+---
+---
+
+# ¿Por qué es importante aprender RMarkdown (Rmd)?
+
+"Un Archivo R	Markdown	(.Rmd) es un registro de tu investigación o análisis de datos. Contiene el código que un científico necesita para reproducir tu trabajo junto con la narración que un lector necesita para entender tu trabajo."
+
+---
+# Opciones de los Chunks
+
+|Opción           | Efecto             |
+:-----------------|:-------------------|:
+|eval             |evalúa el código (para depurar errors)
+|Include = FALSE  |ejecuta el código
+|echo= FALSE       |no aparece el código, pero muestra los resultados en el informe final
+|message = FALSE o warning = FALSE   |impide que mensajes o advertencias aparezcan en el archivo final.
+|fig.show = 'hide'  |esconde los gráficos
+|error = TRUE   |   |Ayuda a detectar dónde hay un error. Avisa del error pero continua
+
+
+---
+
+# R Code
+
+```{r comment='#'}
+# a boring regression
+fit = lm(dist ~ 1 + speed, data = cars)
+coef(summary(fit))
+dojutsu = c('地爆天星', '天照', '加具土命', '神威', '須佐能乎', '無限月読')
+grep('天', dojutsu, value = TRUE)
+```
+
+---
+
+# R Plots
+
+```{r cars, fig.height=4, dev='svg'}
+par(mar = c(4, 4, 1, .1))
+plot(cars, pch = 19, col = 'darkgray', las = 1)
+abline(fit, lwd = 2)
+```
+
+---
+
+# Tablas
+
+
+```{r}
+knitr::kable(head(iris), format = 'html')
+```
+
+
+```{r out.width='100%', fig.height=6, eval=require('leaflet')}
+library(leaflet)
+leaflet() %>% addTiles() %>% setView(-93.65, 42.0285, zoom = 17)
+```
+
+---
+
+```{r eval=require('DT'), tidy=FALSE}
+DT::datatable(
+  head(iris, 10),
+  fillContainer = FALSE, options = list(pageLength = 8)
+)
+```
+
+---
+
+# Some Tips
+
+-# Opciones de los Chunks
+
+|Opción           | Efecto             |
+:-----------------|:-------------------|:
+|eval             |evalúa el código (para depurar errors)
+
+|Include = FALSE  |ejecuta el código
+
+|echo= FALSE       |no aparece el código, pero muestra los resultados en el informe final
+|message = FALSE o warning = FALSE   |impide que mensajes o advertencias aparezcan en el archivo final.
+|fig.show = 'hide'  |esconde los gráficos
+|error = TRUE   |   |Ayuda a detectar dónde hay un error. Avisa del error pero continua
+
+   
+--
+
+- 
+---
+
+
+
+;
